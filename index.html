@@ -1,97 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="description" content="Saphal Thapaliya Portfolio Website">
-<meta name="keywords" content="Saphal, Developer, Minecraft, Portfolio">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Saphal | Portfolio</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saphal | Developer Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 </head>
 <body>
 
 <div id="loader">
-  <h1>Loading Saphal's World...</h1>
+    <div class="loader-content">
+        <div class="glitch-wrapper">
+            <h1 class="loader-title" data-text="SAPHAL.EXE">SAPHAL.EXE</h1>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <p class="loader-status">LOADING.....</p>
+    </div>
 </div>
 
 <div id="particles-js"></div>
 
 <nav>
-  <span class="logo">Saphal</span>
-  <div class="nav-links">
-    <a href="#home">Home</a>
-    <a href="#minecraft">Minecraft</a>
-    <a href="#projects">Projects</a>
-    <a href="#contact">Contact</a>
-  </div>
+    <span class="logo">Saphal<span style="color:#00f2ff">.</span></span>
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#minecraft">Server</a>
+        <a href="#projects">Projects</a>
+    </div>
 </nav>
 
 <div class="container" id="home">
+    <div class="card hero-card">
+        <h1 class="title gradient-text">Saphal</h1>
+        <p class="subtitle">STUDENT • DEVELOPER • CREATIVE </p>
+        <div class="typing-container">
+            <span id="typing"></span>
+        </div>
+        <div class="social-strip">
+            <a href="https://youtube.com/@saphallyt" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://discord.gg/mcnp" target="_blank"><i class="fa-brands fa-discord"></i></a>
+            <a href="mailto:gamersaphal8@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+    </div>
 
-<div class="card">
-  <h1 class="title">Saphal</h1>
-  <p class="subtitle">STUDENT • DEVELOPER • TECH ENTHUSIAST</p>
+    <div class="card" id="minecraft">
+        <h2 class="title small gradient-text"><i class="fa-solid fa-cube"></i> Minecraft Network</h2>
+        <div class="ign-box">
+            <p>IGN: <span id="ign-display"><b>Saphal123</b></span></p>
+            <button id="edit-ign-btn" class="admin-edit-btn" style="display:none;" onclick="editIGN()">EDIT</button>
+        </div>
+        
+        <div class="server-grid">
+            <div class="server-info">
+                <span>Java IP</span>
+                <p>play.mcnpnetwork.com</p>
+                <button class="copy-btn" onclick="copyText('play.mcnpnetwork.com')">Copy</button>
+            </div>
+            <div class="server-info">
+                <span>Bedrock IP</span>
+                <p>bedrock.mcnpnetwork.com</p>
+                <button class="copy-btn" onclick="copyText('bedrock.mcnpnetwork.com')">Copy</button>
+            </div>
+            <div class="server-info">
+                <span>Port</span>
+                <p>8118</p>
+                <button class="copy-btn" onclick="copyText('8118')">Copy</button>
+            </div>
+        </div>
+        <div id="status" class="status-badge">Pinging server...</div>
+    </div>
 
-  <p id="typing"></p>
-
-  <div class="buttons">
-    <a href="https://youtube.com/@saphallyt?si=bMOfN_s84UcQCNOT" target="_blank" class="btn icon-btn">
-      <i class="fa-brands fa-youtube"></i>
-    </a>
-
-    <a href="https://discord.gg/mcnp" target="_blank" class="btn icon-btn">
-      <i class="fa-brands fa-discord"></i>
-    </a>
-
-    <a href="mailto:gamersaphal8@gmail.com" class="btn icon-btn">
-      <i class="fa-solid fa-envelope"></i>
-    </a>
-  </div>
+    <div class="card" id="projects">
+        <h2 class="title small gradient-text">Development</h2>
+        <ul class="project-list">
+            <li><i class="fa-solid fa-check-double"></i> MMinecraft Server Developement</li>
+            <li><i class="fa-solid fa-check-double"></i> Discord bot Development </li>
+            <li><i class="fa-solid fa-check-double"></i> Web Development</li>
+        </ul>
+    </div>
 </div>
 
-<div class="card" id="minecraft">
-  <h2 class="title small">Minecraft Career</h2>
-
-  <p>IGN: <b>Saphal123</b></p>
-  <p>Java IP: play.mcnpnetwork.com <button onclick="copyText('play.mcnpnetwork.com')">Copy</button></p>
-  <p>Bedrock IP: bedrock.mcnpnetwork.com <button onclick="copyText('bedrock.mcnpnetwork.com')">Copy</button></p>
-  <p>Port: 8118 <button onclick="copyText('8118')">Copy</button></p>
-
-  <hr>
-
-  <div id="status">Checking server status...</div>
-</div>
-
-<div class="card" id="projects">
-  <h2 class="title small">Projects</h2>
-  <p>✔ Minecraft Server Network</p>
-  <p>✔ Portfolio Website</p>
-  <p>✔ Skript Development</p>
-  <p>✔ Discord Bots</p>
-</div>
-
-<div class="card" id="contact">
-  <h2 class="title small">Contact</h2>
-  <p>Email: gamersaphal8@gmail.com</p>
-  <p>Discord: discord.gg/mcnp</p>
-  <p>Location: Dhading, Nepal</p>
-</div>
-
-</div>
-
-<footer>
-© 2026 Saphal • All Rights Reserved | Privacy Policy
+<footer class="contact-footer">
+    <p>Located in <b>Dhading, Nepal</b> • Let's connect at <a href="mailto:gamersaphal8@gmail.com">gamersaphal8@gmail.com</a></p>
+    <p class="rights">© 2026 Saphal • All Rights Reserved</p>
 </footer>
 
 <script src="script.js"></script>
 </body>
-  </html>
+</html>
