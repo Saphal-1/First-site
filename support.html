@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Support | Saphal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* MOBILE SAFE ADDITIONS */
+.auth-box, .card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.stars i {
+  font-size: 24px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="section">
+
+<h2>Support & Reviews</h2>
+
+<!-- LOGIN -->
+<div id="auth" class="auth-box">
+  <button onclick="googleLogin()">Login with Google</button>
+  <hr>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="emailLogin()">Login / Register</button>
+</div>
+
+<!-- USER -->
+<div id="userBox" class="auth-box" style="display:none">
+  Logged in as <b id="userName"></b>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- REVIEW FORM -->
+<form id="reviewForm" class="card" style="display:none">
+  <input id="title" placeholder="Title" required>
+
+  <div class="stars">
+    <i data-v="1" class="fa-regular fa-star"></i>
+    <i data-v="2" class="fa-regular fa-star"></i>
+    <i data-v="3" class="fa-regular fa-star"></i>
+    <i data-v="4" class="fa-regular fa-star"></i>
+    <i data-v="5" class="fa-regular fa-star"></i>
+  </div>
+
+  <textarea id="message" placeholder="Your message" required></textarea>
+  <button type="submit">Submit</button>
+</form>
+
+<!-- REVIEWS -->
+<div id="reviews" class="grid"></div>
+
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script src="support.js"></script>
+</body>
+</html>
