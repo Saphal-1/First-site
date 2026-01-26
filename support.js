@@ -1,48 +1,78 @@
-// 🔥 FIREBASE CONFIG
+// ================= FIREBASE CONFIG =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  update,
+  remove,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDMIgjDVUOiRvjgplXce15DD27wUe-04LQ",
   authDomain: "firstsitexyz.firebaseapp.com",
   projectId: "firstsitexyz",
-  storageBucket: "firstsitexyz.firebasestorage.app",
-  messagingSenderId: "104279243313",
-  appId: "1:104279243313:web:485df97877f6a1cb31b310",
-  measurementId: "G-V9N1F1Q9ZQ"
+  databaseURL: "https://firstsitexyz-default-rtdb.firebaseio.com",
 };
 
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-const auth = firebase.auth();
-const db = firebase.database();
-const ADMIN_CODE = "Saphal is a developer";
+// ================= ADMIN =================
+const ADMIN_UIDS = [
+  "PUT_YOUR_FIREBASE_UID_HERE"
+];
 
-// AUTH ELEMENTS
+// ================= ELEMENTS =================
 const authBox = document.getElementById("auth");
 const userBox = document.getElementById("userBox");
 const reviewForm = document.getElementById("reviewForm");
 const userName = document.getElementById("userName");
+const reviews = document.getElementById("reviews");
 
-// LOGIN
-function googleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
-}
+const email = document.getElementById("email");
+const password = document.getElementById("password");
 
-function emailLogin() {
-  auth.signInWithEmailAndPassword(email.value, password.value)
-    .catch(() => auth.createUserWithEmailAndPassword(email.value, password.value));
-}
+// ================= LOGIN =================
+window.googleLogin = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithRedirect(auth, provider);
+};
 
-function logout() {
-  auth.signOut();
-}
+window.emailLogin = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+  } catch (err) {
+    if (err.code === "auth/user-not-found") {
+      await createUserWithEmailAndPassword(auth, email.value, password.value);
+    } else {
+      alert(err.message);
+    }
+  }
+};
 
-// AUTH STATE
-auth.onAuthStateChanged(user => {
+window.logout = () => signOut(auth);
+
+// ================= AUTH STATE =================
+onAuthStateChanged(auth, user => {
   if (user) {
     authBox.style.display = "none";
     userBox.style.display = "block";
     reviewForm.style.display = "block";
-    userName.innerText = user.email || user.displayName;
+    userName.textContent = user.email || "User";
     loadReviews();
   } else {
     authBox.style.display = "block";
@@ -51,88 +81,80 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// STAR SYSTEM
+// ================= STAR RATING =================
 let rating = 0;
 document.querySelectorAll(".stars i").forEach(star => {
   star.onclick = () => {
-    rating = star.dataset.v;
+    rating = Number(star.dataset.v);
     document.querySelectorAll(".stars i").forEach(s => {
-      s.className = s.dataset.v <= rating ? "fa-solid fa-star" : "fa-regular fa-star";
+      s.className =
+        Number(s.dataset.v) <= rating
+          ? "fa-solid fa-star"
+          : "fa-regular fa-star";
     });
   };
 });
 
-// SUBMIT REVIEW
+// ================= SUBMIT REVIEW =================
 reviewForm.onsubmit = e => {
   e.preventDefault();
-
   const user = auth.currentUser;
-  if (!user || rating === 0) return alert("Rating required");
+  if (!user || rating === 0) return alert("Give rating");
 
-  const data = {
+  push(ref(db, "reviews"), {
     uid: user.uid,
-    name: user.displayName || user.email,
+    name: user.email,
     title: title.value,
     msg: message.value,
-    rating: rating,
+    rating,
     time: Date.now(),
     votes: { up: 0, down: 0 }
-  };
+  });
 
-  db.ref("reviews").push(data);
   reviewForm.reset();
 };
 
-// LOAD REVIEWS
+// ================= LOAD REVIEWS =================
 function loadReviews() {
-  db.ref("reviews").on("value", snap => {
+  onValue(ref(db, "reviews"), snap => {
     reviews.innerHTML = "";
     snap.forEach(c => {
       const r = c.val();
       const id = c.key;
-      const owner = auth.currentUser.uid === r.uid;
+      const owner = auth.currentUser?.uid === r.uid;
+      const admin = ADMIN_UIDS.includes(auth.currentUser?.uid);
 
       reviews.innerHTML += `
-      <div class="card">
-        <b>${r.name}</b> — ${"★".repeat(r.rating)}
-        <h4>${r.title}</h4>
-        <p>${r.msg}</p>
+        <div class="card">
+          <b>${r.name}</b> — ${"★".repeat(r.rating)}
+          <h4>${r.title}</h4>
+          <p>${r.msg}</p>
 
-        <button onclick="vote('${id}','up')">👍 ${r.votes?.up || 0}</button>
-        <button onclick="vote('${id}','down')">👎 ${r.votes?.down || 0}</button>
+          <button onclick="vote('${id}','up')">👍 ${r.votes?.up || 0}</button>
+          <button onclick="vote('${id}','down')">👎 ${r.votes?.down || 0}</button>
 
-        ${owner ? `<button onclick="editReview('${id}')">Edit</button>
-        <button onclick="deleteReview('${id}')">Delete</button>` : ""}
-
-        <button onclick="admin('${id}')">Admin</button>
-      </div>`;
+          ${owner || admin ? `
+            <button onclick="editReview('${id}')">Edit</button>
+            <button onclick="deleteReview('${id}')">Delete</button>
+          ` : ""}
+        </div>`;
     });
   });
 }
 
-// VOTE (DAILY)
-function vote(id, type) {
-  const key = `vote-${id}`;
+// ================= VOTING =================
+window.vote = (id, type) => {
+  const key = `vote-${id}-${new Date().toDateString()}`;
   if (localStorage.getItem(key)) return alert("Already voted today");
-  db.ref(`reviews/${id}/votes/${type}`).transaction(v => (v || 0) + 1);
-  localStorage.setItem(key, Date.now());
-}
 
-// OWNER
-function editReview(id) {
-  const msg = prompt("Edit review");
-  if (msg) db.ref("reviews/" + id).update({ msg });
-}
+  runTransaction(ref(db, `reviews/${id}/votes/${type}`), v => (v || 0) + 1);
+  localStorage.setItem(key, "1");
+};
 
-function deleteReview(id) {
-  db.ref("reviews/" + id).remove();
-}
+// ================= EDIT / DELETE =================
+window.editReview = id => {
+  const msg = prompt("Edit message");
+  if (msg) update(ref(db, "reviews/" + id), { msg });
+};
 
-// ADMIN
-function admin(id) {
-  const code = prompt("Admin code");
-  if (code !== ADMIN_CODE) return;
-  const act = prompt("edit / delete");
-  if (act === "delete") deleteReview(id);
-  if (act === "edit") editReview(id);
-        }
+window.deleteReview = id => remove(ref(db, "reviews/" + id));
