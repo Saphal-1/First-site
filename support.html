@@ -1,59 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Support | Saphal</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-/* MOBILE SAFE ADDITIONS */
-.auth-box, .card {
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-button {
-  width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.stars i {
-  font-size: 24px;
-  cursor: pointer;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Reviews</title>
+  <script src="https://kit.fontawesome.com/a2e0e6ad9f.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="review.css">
 </head>
-
 <body>
 
-<div class="section">
+<h2>Leave a Review</h2>
 
-<h2>Support & Reviews</h2>
-
-<!-- LOGIN -->
-<div id="auth" class="auth-box">
-  <button onclick="googleLogin()">Login with Google</button>
-  <hr>
-  <input id="email" type="email" placeholder="Email" required>
-<input id="password" type="password" placeholder="Password" required>
-  <button onclick="emailLogin()">Login / Register</button>
-</div>
-
-<!-- USER -->
-<div id="userBox" class="auth-box" style="display:none">
-  Logged in as <b id="userName"></b>
-  <button onclick="logout()">Logout</button>
-</div>
-
-<!-- REVIEW FORM -->
-<form id="reviewForm" class="card" style="display:none">
-  <input id="title" placeholder="Title" required>
+<form id="reviewForm">
+  <input id="name" placeholder="Your name" required maxlength="20">
+  <input id="title" placeholder="Review title" required maxlength="40">
+  <textarea id="message" placeholder="Your review..." required maxlength="300"></textarea>
 
   <div class="stars">
     <i data-v="1" class="fa-regular fa-star"></i>
@@ -63,21 +23,14 @@ button {
     <i data-v="5" class="fa-regular fa-star"></i>
   </div>
 
-  <textarea id="message" placeholder="Your message" required></textarea>
-  <button type="submit">Submit</button>
+  <button type="submit">Submit Review</button>
 </form>
 
-<!-- REVIEWS -->
-<div id="reviews" class="grid"></div>
+<hr>
 
-</div>
+<h2>Reviews</h2>
+<div id="reviews"></div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<!-- FIREBASE (MODULAR v9) -->
-<script type="module" src="support.js"></script>
+<script type="module" src="review.js"></script>
 </body>
 </html>
