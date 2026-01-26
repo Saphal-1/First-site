@@ -9,10 +9,10 @@ import {
 
 // 🔥 Firebase Config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT"
+  apiKey: "AIzaSyDMIgjDVUOiRvjgplXce15DD27wUe-04LQ",
+  authDomain: "firstsitexyz.firebaseapp.com",
+  databaseURL: "https://firstsitexyz-default-rtdb.firebaseio.com",
+  projectId: "firstsitexyz"
 };
 
 const app = initializeApp(firebaseConfig);
