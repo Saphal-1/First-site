@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews | Saphal Developer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        .review-form { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .review-input { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 12px; color: white; outline: none; transition: 0.3s;
+        }
+        .review-input:focus { border-color: #00f2ff; }
+        .submit-btn { 
+            background: linear-gradient(90deg, #00f2ff, #a855f7); color: white;
+            padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+        }
+        .review-card { position: relative; margin-bottom: 20px; padding: 25px !important; }
+        .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .reviewer-name { font-weight: 700; color: #00f2ff; font-size: 16px; }
+        .review-text { opacity: 0.8; line-height: 1.6; }
+        
+        /* Three-dot menu */
+        .menu-container { position: relative; }
+        .three-dots { cursor: pointer; opacity: 0.5; padding: 5px; }
+        .dropdown-menu { 
+            position: absolute; right: 0; background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; display: none; z-index: 10; width: 100px; overflow: hidden;
+        }
+        .dropdown-menu button { 
+            width: 100%; padding: 10px; background: none; color: white; border: none; 
+            text-align: left; cursor: pointer; font-size: 12px;
+        }
+        .dropdown-menu button:hover { background: rgba(255,255,255,0.1); }
+        .show { display: block; }
+    </style>
+</head>
+<body>
+
+<div id="particles-js"></div>
+
+<nav>
+    <span class="logo">Saphal<span style="color:#00f2ff">.</span></span>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#projects">Projects</a>
+    </div>
+</nav>
+
+<div class="container" style="display: block;">
+    <div class="card">
+        <h2 class="title small gradient-text">Leave a Review</h2>
+        <div class="review-form">
+            <input type="text" id="reviewerName" class="review-input" placeholder="Your Name">
+            <textarea id="reviewContent" class="review-input" rows="3" placeholder="Write your feedback..."></textarea>
+            <button onclick="postReview()" class="submit-btn">POST REVIEW</button>
+        </div>
+    </div>
+
+    <div id="reviews-list">
+        </div>
+</div>
+
+<script type="module" src="review-system.js"></script>
+<script>
+    /* Particles background matching index.html */
+    particlesJS("particles-js", {
+        particles: {
+            number: { value: 60 },
+            color: { value: "#00f2ff" },
+            shape: { type: "circle" },
+            opacity: { value: 0.5 },
+            size: { value: 2 },
+            line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.2, width: 1 },
+            move: { enable: true, speed: 1.5 }
+        }
+    });
+
+    function toggleMenu(id) {
+        document.getElementById('dropdown-'+id).classList.toggle('show');
+    }
+</script>
+</body>
+</html>
