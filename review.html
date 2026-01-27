@@ -7,36 +7,38 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
     <style>
-        .review-form { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
         .review-input { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; border-radius: 12px; color: white; outline: none; transition: 0.3s;
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px; border-radius: 8px; color: white; margin-bottom: 10px; outline: none;
         }
-        .review-input:focus { border-color: #00f2ff; }
         .submit-btn { 
-            background: linear-gradient(90deg, #00f2ff, #a855f7); color: white;
-            padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+            width: 100%; background: linear-gradient(90deg, #00f2ff, #a855f7); color: white;
+            padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
         }
-        .review-card { position: relative; margin-bottom: 20px; padding: 25px !important; }
-        .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .reviewer-name { font-weight: 700; color: #00f2ff; font-size: 16px; }
-        .review-text { opacity: 0.8; line-height: 1.6; }
-        
-        /* Three-dot menu */
-        .menu-container { position: relative; }
-        .three-dots { cursor: pointer; opacity: 0.5; padding: 5px; }
-        .dropdown-menu { 
-            position: absolute; right: 0; background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; display: none; z-index: 10; width: 100px; overflow: hidden;
+        .review-card { position: relative; margin-top: 20px; text-align: left; }
+        .three-dots { 
+            position: absolute; top: 15px; right: 15px; cursor: pointer; 
+            opacity: 0.6; transition: 0.3s; padding: 5px;
         }
-        .dropdown-menu button { 
-            width: 100%; padding: 10px; background: none; color: white; border: none; 
-            text-align: left; cursor: pointer; font-size: 12px;
+        .three-dots:hover { opacity: 1; color: #00f2ff; }
+        .admin-menu { 
+            display: none; position: absolute; top: 40px; right: 10px; 
+            background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; z-index: 100; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        .dropdown-menu button:hover { background: rgba(255,255,255,0.1); }
-        .show { display: block; }
+        .admin-menu button { 
+            display: block; width: 100%; padding: 10px 20px; background: none; 
+            color: white; border: none; cursor: pointer; text-align: left; font-size: 13px;
+        }
+        .admin-menu button:hover { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; }
+        .rating-stars { color: #00f2ff; margin-bottom: 8px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -47,42 +49,42 @@
     <span class="logo">Saphal<span style="color:#00f2ff">.</span></span>
     <div class="nav-links">
         <a href="index.html">Home</a>
-        <a href="index.html#projects">Projects</a>
     </div>
 </nav>
 
-<div class="container" style="display: block;">
+<div class="container" style="display: block; max-width: 800px; margin: 100px auto;">
     <div class="card">
-        <h2 class="title small gradient-text">Leave a Review</h2>
-        <div class="review-form">
-            <input type="text" id="reviewerName" class="review-input" placeholder="Your Name">
-            <textarea id="reviewContent" class="review-input" rows="3" placeholder="Write your feedback..."></textarea>
-            <button onclick="postReview()" class="submit-btn">POST REVIEW</button>
-        </div>
+        <h2 class="title small gradient-text">Community Reviews</h2>
+        <form id="reviewForm">
+            <input type="text" id="reviewName" class="review-input" placeholder="Your Name" required>
+            <select id="reviewRating" class="review-input" style="color: #00f2ff;">
+                <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                <option value="4">⭐⭐⭐⭐ (Great)</option>
+                <option value="3">⭐⭐⭐ (Good)</option>
+                <option value="2">⭐⭐ (Fair)</option>
+                <option value="1">⭐ (Poor)</option>
+            </select>
+            <textarea id="reviewMessage" class="review-input" rows="3" placeholder="Write your review here..." required></textarea>
+            <button type="submit" class="submit-btn">SUBMIT REVIEW</button>
+        </form>
     </div>
 
-    <div id="reviews-list">
+    <div id="reviewsContainer">
         </div>
 </div>
 
-<script type="module" src="review-system.js"></script>
+<script src="review-logic.js"></script>
 <script>
-    /* Particles background matching index.html */
     particlesJS("particles-js", {
         particles: {
-            number: { value: 60 },
+            number: { value: 50 },
             color: { value: "#00f2ff" },
-            shape: { type: "circle" },
-            opacity: { value: 0.5 },
+            opacity: { value: 0.3 },
             size: { value: 2 },
-            line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.2, width: 1 },
-            move: { enable: true, speed: 1.5 }
+            line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.1 },
+            move: { enable: true, speed: 1 }
         }
     });
-
-    function toggleMenu(id) {
-        document.getElementById('dropdown-'+id).classList.toggle('show');
-    }
 </script>
 </body>
 </html>
