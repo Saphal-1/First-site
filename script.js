@@ -43,15 +43,16 @@ function editIGN() {
 }
 
 // 3. TYPED.JS
-new Typed("#typing",{
-    strings:[
-      "Hi, I'm <span class='gradient-text'>Saphal Thapaliya</span>.",
-      "A developer from <span class='gradient-text'>Dhading, Nepal</span>.",
-      "Building creative <span class='gradient-text'>digital experiences</span>."
-    ],
-    typeSpeed:40,
-    backSpeed:20,
-    loop: true
+new Typed("#typing", {
+  strings: [
+    "Hi, I'm <span class='gradient-text'>Saphal Thapaliya</span>.",
+    "A developer from <span class='gradient-text'>Dhading, Nepal</span>.",
+    "Building creative <span class='gradient-text'>digital experiences</span>."
+  ],
+  typeSpeed: 40,
+  backSpeed: 20,
+  loop: true,
+  contentType: "html" // 🔥 THIS FIXES IT
 });
 
 // 4. PARTICLES.JS
