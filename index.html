@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saphal | Developer Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+</head>
+<body>
+
+<div id="loader">
+    <div class="loader-content">
+        <div class="glitch-wrapper">
+            <h1 class="loader-title" data-text="SAPHAL.EXE">SAPHAL</h1>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <p class="loader-status">LOADING.....</p>
+    </div>
+</div>
+
+<div id="particles-js"></div>
+
+<nav>
+    <span class="logo">Saphal<span style="color:#00f2ff"> </span></span>
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#minecraft">Server</a>
+        <a href="review.html">Support</a>
+        <a href="#projects">Projects</a>
+    </div>
+</nav>
+
+<div class="container" id="home">
+    <div class="card hero-card">
+        <h1 class="title gradient-text">Saphal</h1>
+        <p class="subtitle">STUDENT • DEVELOPER • CREATIVE </p>
+        <div class="typing-container">
+            <span id="typing"></span>
+        </div>
+        <div class="social-strip">
+            <a href="https://youtube.com/@saphallyt" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://discord.gg/mcnp" target="_blank"><i class="fa-brands fa-discord"></i></a>
+            <a href="mailto:gamersaphal8@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+    </div>
+
+    <div class="card" id="minecraft">
+        <h2 class="title small gradient-text"><i class="fa-solid fa-cube"></i> Minecraft Network</h2>
+        <div class="ign-box">
+    <div class="ign-content">
+        <span class="ign-label">Username:</span>
+        <span id="ign-display" class="ign-name">Saphal123</span>
+        <img 
+            class="mc-head" 
+            src="https://mc-heads.net/avatar/Swightt/48" 
+            alt="Minecraft Head">
+    </div>
+        </div>
+        
+        <div class="server-grid">
+            <div class="server-info">
+                <span>Java IP</span>
+                <p>play.mcnpnetwork.com</p>
+                <button class="copy-btn" onclick="copyText('play.mcnpnetwork.com')">Copy</button>
+            </div>
+            <div class="server-info">
+                <span>Bedrock IP</span>
+                <p>bedrock.mcnpnetwork.com</p>
+                <button class="copy-btn" onclick="copyText('bedrock.mcnpnetwork.com')">Copy</button>
+            </div>
+            <div class="server-info">
+                <span>Port</span>
+                <p>8118</p>
+                <button class="copy-btn" onclick="copyText('8118')">Copy</button>
+            </div>
+        </div>
+        <div id="status" class="status-badge">Pinging server...</div>
+    </div>
+
+    <div class="card" id="projects">
+        <h2 class="title small gradient-text">Development</h2>
+        <ul class="project-list">
+            <li><i class="fa-solid fa-check-double"></i> Minecraft Server Developement</li>
+            <li><i class="fa-solid fa-check-double"></i> Discord bot Development </li>
+            <li><i class="fa-solid fa-check-double"></i> Web Development</li>
+        </ul>
+    </div>
+</div>
+
+<footer class="contact-footer">
+    <p>Located in <b>Dhading, Nepal</b> • Let's connect at <a href="mailto:gamersaphal8@gmail.com">gamersaphal8@gmail.com</a></p>
+    <p class="rights">© 2026 Saphal • All Rights Reserved</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
