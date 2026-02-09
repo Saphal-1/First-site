@@ -459,3 +459,8 @@ footer {
 
   .container { gap: 20px; }
 }
+.logo {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+}
