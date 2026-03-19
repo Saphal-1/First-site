@@ -1,172 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Review System</title>
-
-    <!-- Firebase v8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews | Saphal Developer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
+        .review-input { 
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px; border-radius: 8px; color: white; margin-bottom: 10px; outline: none;
         }
+        .submit-btn { 
+            width: 100%; background: linear-gradient(90deg, #00f2ff, #a855f7); color: white;
+            padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
+            transition: 0.3s;
+        }
+        .submit-btn:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        
+        .review-card { position: relative; margin-top: 20px; text-align: left; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 {
-            text-align: center;
+        .three-dots { 
+            position: absolute; top: 15px; right: 15px; cursor: pointer; 
+            opacity: 0.6; transition: 0.3s; padding: 5px;
         }
+        .three-dots:hover { opacity: 1; color: #00f2ff; }
+        
+        .admin-menu { 
+            display: none; position: absolute; top: 40px; right: 10px; 
+            background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; z-index: 100; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .admin-menu button { 
+            display: block; width: 100%; padding: 10px 20px; background: none; 
+            color: white; border: none; cursor: pointer; text-align: left; font-size: 13px;
+        }
+        .admin-menu button:hover { background: rgba(0, 242, 255, 0.1); color: #00f2ff; }
+        .rating-stars { color: #00f2ff; margin-bottom: 8px; letter-spacing: 2px; }
 
-        .card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            position: relative;
+        /* CUSTOM MODAL CSS */
+        #adminModal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center;
         }
-
-        .three-dots {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            cursor: pointer;
+        .modal-content {
+            background: #0f172a; border: 1px solid #00f2ff; padding: 30px;
+            border-radius: 20px; text-align: center; width: 90%; max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .admin-menu {
-            display: none;
-            position: absolute;
-            right: 10px;
-            top: 35px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .admin-menu button {
-            display: block;
-            width: 100%;
-            padding: 8px 12px;
-            border: none;
-            background: white;
-            cursor: pointer;
-        }
-
-        .admin-menu button:hover {
-            background: #eee;
-        }
-
-        .rating-stars {
-            color: gold;
-            font-size: 18px;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border: none;
-        }
-
-        button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        /* MODAL */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-
-        .modal-box {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            padding: 25px;
-            border-radius: 15px;
-            width: 300px;
-            text-align: center;
-            animation: floatUp 0.3s ease;
-        }
-
-        .modal-box input {
-            width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: none;
-        }
-
-        .modal-buttons button {
-            margin: 5px;
-            font-weight: bold;
-        }
-
-        .confirm-btn {
-            background: #00ffcc;
-        }
-
-        .cancel-btn {
-            background: #333;
-            color: white;
-        }
-
-        @keyframes floatUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { margin-bottom: 20px; font-size: 1.2rem; color: #00f2ff; font-weight: 600; }
+        .cancel-btn { background: transparent; color: #ff4d4d; margin-top: 10px; padding: 10px; cursor: pointer; border: none; font-size: 14px; }
     </style>
 </head>
-
 <body>
 
-<h2>Review System</h2>
+<div id="particles-js"></div>
 
-<form id="reviewForm">
-    <input type="text" id="reviewName" placeholder="Your Name" required>
+<nav>
+  <a href="index.html" class="logo">Saphal<span style="color:#00f2ff">.</span></a>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+    </div>
+</nav>
 
-    <select id="reviewRating" required>
-        <option value="5">★★★★★</option>
-        <option value="4">★★★★</option>
-        <option value="3">★★★</option>
-        <option value="2">★★</option>
-        <option value="1">★</option>
-    </select>
+<div class="container" style="display: block; max-width: 800px; margin: 100px auto;">
+    <div class="card">
+        <h2 class="title small gradient-text" id="formTitle">Community Reviews</h2>
+        <form id="reviewForm">
+            <input type="text" id="reviewName" class="review-input" placeholder="Your Name" required>
+            <select id="reviewRating" class="review-input" style="color: #00f2ff;">
+                <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                <option value="4">⭐⭐⭐⭐ (Great)</option>
+                <option value="3">⭐⭐⭐ (Good)</option>
+                <option value="2">⭐⭐ (Fair)</option>
+                <option value="1">⭐ (Poor)</option>
+            </select>
+            <textarea id="reviewMessage" class="review-input" rows="3" placeholder="Write your review here..." required></textarea>
+            <button type="submit" id="submitBtn" class="submit-btn">SUBMIT REVIEW</button>
+            <button type="button" id="cancelEdit" class="cancel-btn" style="display: none; width: 100%;">Cancel Editing</button>
+        </form>
+    </div>
 
-    <textarea id="reviewMessage" placeholder="Write review..." required></textarea>
+    <div id="reviewsContainer"></div>
+</div>
 
-    <button type="submit">Post Review</button>
-</form>
-
-<hr>
-
-<div id="reviewsContainer"></div>
-
-<!-- SECRET MODAL -->
-<div id="secretModal" class="modal">
-    <div class="modal-box">
-        <h3>Enter Secret Code</h3>
-        <input type="password" id="secretInput" placeholder="Secret Code">
-        <div class="modal-buttons">
-            <button class="confirm-btn" onclick="confirmSecret()">Confirm</button>
-            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        </div>
+<div id="adminModal">
+    <div class="modal-content">
+        <div class="modal-title">Admin Authorization</div>
+        <p style="font-size: 13px; opacity: 0.7; margin-bottom: 15px;">Please enter the secret code to proceed.</p>
+        <input type="password" id="adminSecretInput" class="review-input" placeholder="Enter Secret Code">
+        <button id="confirmAdminBtn" class="submit-btn">VERIFY</button>
+        <button onclick="closeModal()" class="cancel-btn">CLOSE</button>
     </div>
 </div>
 
-<script src="review.js"></script>
-
+<script src="review-logic.js"></script>
+<script>
+    particlesJS("particles-js", {
+        particles: {
+            number: { value: 50 },
+            color: { value: "#00f2ff" },
+            opacity: { value: 0.3 },
+            size: { value: 2 },
+            line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.1 },
+            move: { enable: true, speed: 1 }
+        }
+    });
+</script>
 </body>
 </html>
