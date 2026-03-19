@@ -2,91 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviews | Saphal Developer</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+    <title>Reviews</title>
+
+    <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
     <style>
-        .review-input { 
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px; border-radius: 8px; color: white; margin-bottom: 10px; outline: none;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
         }
-        .submit-btn { 
-            width: 100%; background: linear-gradient(90deg, #00f2ff, #a855f7); color: white;
-            padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        .review-card { position: relative; margin-top: 20px; text-align: left; }
-        .three-dots { 
-            position: absolute; top: 15px; right: 15px; cursor: pointer; 
-            opacity: 0.6; transition: 0.3s; padding: 5px;
+
+        .three-dots {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
         }
-        .three-dots:hover { opacity: 1; color: #00f2ff; }
-        .admin-menu { 
-            display: none; position: absolute; top: 40px; right: 10px; 
-            background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; z-index: 100; overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+
+        .admin-menu {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 30px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-        .admin-menu button { 
-            display: block; width: 100%; padding: 10px 20px; background: none; 
-            color: white; border: none; cursor: pointer; text-align: left; font-size: 13px;
+
+        .admin-menu button {
+            display: block;
+            width: 100%;
+            border: none;
+            background: none;
+            padding: 8px;
+            cursor: pointer;
         }
-        .admin-menu button:hover { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; }
-        .rating-stars { color: #00f2ff; margin-bottom: 8px; letter-spacing: 2px; }
+
+        .rating-stars {
+            color: gold;
+            font-size: 18px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        #authSection {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div id="particles-js"></div>
+<h2>Review System</h2>
 
-<nav>
-  <a href="index.html" class="logo">
-    Saphal<span style="color:#00f2ff">.</span>
-  </a>
-    <div class="nav-links">
-        <a href="index.html">Home</a>
-    </div>
-</nav>
-
-<div class="container" style="display: block; max-width: 800px; margin: 100px auto;">
-    <div class="card">
-        <h2 class="title small gradient-text">Community Reviews</h2>
-        <form id="reviewForm">
-            <input type="text" id="reviewName" class="review-input" placeholder="Your Name" required>
-            <select id="reviewRating" class="review-input" style="color: #00f2ff;">
-                <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
-                <option value="4">⭐⭐⭐⭐ (Great)</option>
-                <option value="3">⭐⭐⭐ (Good)</option>
-                <option value="2">⭐⭐ (Fair)</option>
-                <option value="1">⭐ (Poor)</option>
-            </select>
-            <textarea id="reviewMessage" class="review-input" rows="3" placeholder="Write your review here..." required></textarea>
-            <button type="submit" class="submit-btn">SUBMIT REVIEW</button>
-        </form>
-    </div>
-
-    <div id="reviewsContainer">
-        </div>
+<!-- AUTH -->
+<div id="authSection">
+    <h3>Login / Register</h3>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+    <p id="userStatus"></p>
 </div>
 
-<script src="review-logic.js"></script>
-<script>
-    particlesJS("particles-js", {
-        particles: {
-            number: { value: 50 },
-            color: { value: "#00f2ff" },
-            opacity: { value: 0.3 },
-            size: { value: 2 },
-            line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.1 },
-            move: { enable: true, speed: 1 }
-        }
-    });
-</script>
+<!-- REVIEW FORM -->
+<form id="reviewForm">
+    <input type="text" id="reviewName" placeholder="Your Name" required>
+
+    <select id="reviewRating" required>
+        <option value="5">★★★★★</option>
+        <option value="4">★★★★</option>
+        <option value="3">★★★</option>
+        <option value="2">★★</option>
+        <option value="1">★</option>
+    </select>
+
+    <textarea id="reviewMessage" placeholder="Write review..." required></textarea>
+
+    <button type="submit">Post Review</button>
+</form>
+
+<hr>
+
+<div id="reviewsContainer"></div>
+
+<script src="review.js"></script>
+
 </body>
 </html>
