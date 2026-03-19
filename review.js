@@ -2,157 +2,147 @@
 const firebaseConfig = {
   apiKey: "AIzaSyDMIgjDVUOiRvjgplXce15DD27wUe-04LQ",
   authDomain: "firstsitexyz.firebaseapp.com",
-  databaseURL: "https://firstsitexyz-default-rtdb.firebaseio.com", // Ensure RTDB is enabled in Firebase Console
+  databaseURL: "https://firstsitexyz-default-rtdb.firebaseio.com",
   projectId: "firstsitexyz",
   storageBucket: "firstsitexyz.firebasestorage.app",
   messagingSenderId: "104279243313",
   appId: "1:104279243313:web:485df97877f6a1cb31b310"
 };
 
-firebase.initializeApp(firebaseConfig);
-
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const database = firebase.database();
-const auth = firebase.auth();
 
+// ================= REVIEW SYSTEM =================
 const reviewForm = document.getElementById("reviewForm");
 const container = document.getElementById("reviewsContainer");
-const userStatus = document.getElementById("userStatus");
+const adminModal = document.getElementById("adminModal");
+const secretInput = document.getElementById("adminSecretInput");
+const confirmBtn = document.getElementById("confirmAdminBtn");
+const SECRET_CODE = "saphal-dev-admin"; // Your secret code
 
-let currentUser = null;
-const ADMIN_EMAIL = "gamersaphal8@gmail.com"; // change this
+let currentAction = null; // 'delete' or 'edit'
+let targetId = null;
+let isEditing = false;
+let editId = null;
 
-// ================= AUTH =================
-function register() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .catch(err => alert(err.message));
-}
-
-function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    auth.signInWithEmailAndPassword(email, password)
-        .catch(err => alert(err.message));
-}
-
-function logout() {
-    auth.signOut();
-}
-
-auth.onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        userStatus.innerText = "Logged in as: " + user.email;
-    } else {
-        currentUser = null;
-        userStatus.innerText = "Not logged in";
-    }
-});
-
-// ================= LOAD REVIEWS =================
-database.ref("reviews")
-.orderByChild("timestamp")
-.on("value", snapshot => {
-    container.innerHTML = "";
-    const reviews = [];
-
-    snapshot.forEach(child => {
-        reviews.push({
-            id: child.key,
-            data: child.val()
-        });
+// 1. Listen for data
+database.ref("reviews").on("value", (snapshot) => {
+    container.innerHTML = ""; 
+    snapshot.forEach((childSnapshot) => {
+        const data = childSnapshot.val();
+        const id = childSnapshot.key;
+        renderReview(id, data);
     });
-
-    reviews.reverse(); // newest first
-
-    reviews.forEach(item => renderReview(item.id, item.data));
 });
 
-// ================= RENDER =================
+// 2. UI Rendering
 function renderReview(id, data) {
     const card = document.createElement("div");
-    card.className = "card";
-
-    const isOwner = currentUser && currentUser.uid === data.uid;
-    const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
-
+    card.className = "card review-card";
     card.innerHTML = `
-        ${(isOwner || isAdmin) ? `
-        <div class="three-dots" onclick="toggleMenu('${id}', event)">⋮</div>
-        <div id="menu-${id}" class="admin-menu">
-            ${isOwner ? `<button onclick="editReview('${id}', \`${data.message}\`)">Edit</button>` : ""}
-            <button onclick="deleteReview('${id}')">Delete</button>
+        <div class="three-dots" onclick="toggleMenu('${id}', event)">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
         </div>
-        ` : ""}
-
+        <div id="menu-${id}" class="admin-menu">
+            <button onclick="openAdminModal('${id}', 'edit', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                <i class="fa-solid fa-pen"></i> Edit Review
+            </button>
+            <button onclick="openAdminModal('${id}', 'delete')" style="color: #ff4d4d;">
+                <i class="fa-solid fa-trash"></i> Delete Review
+            </button>
+        </div>
         <div class="rating-stars">${"★".repeat(data.rating)}</div>
-        <p>"${data.message}"</p>
-        <div>
+        <p style="margin-bottom: 15px; font-size: 15px; opacity: 0.9;">"${data.message}"</p>
+        <div style="font-size: 12px; opacity: 0.5;">
             <strong>${data.name}</strong> • ${data.date}
         </div>
     `;
-
-    container.appendChild(card);
+    container.prepend(card);
 }
 
-// ================= POST =================
-reviewForm.addEventListener("submit", e => {
+// 3. Post / Update Review
+reviewForm?.addEventListener("submit", (e) => {
     e.preventDefault();
-
-    if (!currentUser) {
-        alert("Please login first!");
-        return;
-    }
-
-    const newReview = {
+    
+    const reviewData = {
         name: document.getElementById("reviewName").value,
         rating: parseInt(document.getElementById("reviewRating").value),
         message: document.getElementById("reviewMessage").value,
-        date: new Date().toLocaleDateString(),
-        timestamp: Date.now(),
-        uid: currentUser.uid,
-        email: currentUser.email
+        date: isEditing ? "(Edited) " + new Date().toLocaleDateString() : new Date().toLocaleDateString()
     };
 
-    database.ref("reviews").push(newReview)
-        .then(() => reviewForm.reset())
-        .catch(err => alert(err.message));
+    if (isEditing && editId) {
+        database.ref("reviews/" + editId).update(reviewData)
+            .then(() => resetForm())
+            .catch(err => alert(err.message));
+    } else {
+        database.ref("reviews").push(reviewData)
+            .then(() => reviewForm.reset())
+            .catch(err => alert(err.message));
+    }
 });
 
-// ================= EDIT (ONLY MESSAGE) =================
-window.editReview = function(id, currentMsg) {
-    const newMsg = prompt("Edit your review:", currentMsg);
+function resetForm() {
+    isEditing = false;
+    editId = null;
+    reviewForm.reset();
+    document.getElementById("submitBtn").innerText = "SUBMIT REVIEW";
+    document.getElementById("formTitle").innerText = "Community Reviews";
+    document.getElementById("cancelEdit").style.display = "none";
+}
 
-    if (newMsg && newMsg !== currentMsg) {
-        database.ref("reviews/" + id).update({
-            message: newMsg
-        });
-    }
-};
+document.getElementById("cancelEdit").onclick = resetForm;
 
-// ================= DELETE =================
-window.deleteReview = function(id) {
-    if (!currentUser) return;
-
-    if (confirm("Are you sure?")) {
-        database.ref("reviews/" + id).remove();
-    }
-};
-
-// ================= MENU =================
+// 4. Modal & Admin Logic
 window.toggleMenu = function(id, event) {
     event.stopPropagation();
     const menu = document.getElementById(`menu-${id}`);
-    document.querySelectorAll('.admin-menu')
-        .forEach(m => m.style.display = "none");
-
+    document.querySelectorAll('.admin-menu').forEach(m => { if(m !== menu) m.style.display = "none"; });
     menu.style.display = menu.style.display === "block" ? "none" : "block";
 };
 
-window.onclick = () => {
-    document.querySelectorAll('.admin-menu')
-        .forEach(m => m.style.display = "none");
+window.openAdminModal = function(id, action, data = null) {
+    targetId = id;
+    currentAction = action;
+    if (data) window.tempData = data; // Store data for edit mode
+    adminModal.style.display = "flex";
+    secretInput.value = "";
+    secretInput.focus();
+};
+
+window.closeModal = function() {
+    adminModal.style.display = "none";
+};
+
+confirmBtn.onclick = function() {
+    if (secretInput.value === SECRET_CODE) {
+        if (currentAction === 'delete') {
+            database.ref("reviews/" + targetId).remove();
+        } else if (currentAction === 'edit') {
+            startEdit(targetId, window.tempData);
+        }
+        closeModal();
+    } else {
+        alert("Incorrect Admin Code!");
+        secretInput.value = "";
+    }
+};
+
+function startEdit(id, data) {
+    isEditing = true;
+    editId = id;
+    document.getElementById("reviewName").value = data.name;
+    document.getElementById("reviewRating").value = data.rating;
+    document.getElementById("reviewMessage").value = data.message;
+    document.getElementById("submitBtn").innerText = "SAVE CHANGES";
+    document.getElementById("formTitle").innerText = "Editing Review...";
+    document.getElementById("cancelEdit").style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.onclick = (e) => {
+    if (e.target === adminModal) closeModal();
+    document.querySelectorAll('.admin-menu').forEach(m => m.style.display = "none");
 };
