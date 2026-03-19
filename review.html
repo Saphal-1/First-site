@@ -1,28 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Reviews</title>
+    <title>Review System</title>
 
     <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            margin: 0;
             padding: 20px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+
+        h2 {
+            text-align: center;
         }
 
         .card {
-            background: white;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             padding: 15px;
+            border-radius: 12px;
             margin-bottom: 15px;
-            border-radius: 10px;
             position: relative;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .three-dots {
@@ -36,19 +41,23 @@
             display: none;
             position: absolute;
             right: 10px;
-            top: 30px;
+            top: 35px;
             background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .admin-menu button {
             display: block;
             width: 100%;
+            padding: 8px 12px;
             border: none;
-            background: none;
-            padding: 8px;
+            background: white;
             cursor: pointer;
+        }
+
+        .admin-menu button:hover {
+            background: #eee;
         }
 
         .rating-stars {
@@ -60,37 +69,71 @@
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
+            border-radius: 6px;
+            border: none;
         }
 
         button {
             padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
         }
 
-        #authSection {
-            background: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 10px;
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal-box {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            padding: 25px;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+            animation: floatUp 0.3s ease;
+        }
+
+        .modal-box input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .modal-buttons button {
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        .confirm-btn {
+            background: #00ffcc;
+        }
+
+        .cancel-btn {
+            background: #333;
+            color: white;
+        }
+
+        @keyframes floatUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
+
 <body>
 
 <h2>Review System</h2>
 
-<!-- AUTH -->
-<div id="authSection">
-    <h3>Login / Register</h3>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
-    <button onclick="logout()">Logout</button>
-    <p id="userStatus"></p>
-</div>
-
-<!-- REVIEW FORM -->
 <form id="reviewForm">
     <input type="text" id="reviewName" placeholder="Your Name" required>
 
@@ -110,6 +153,18 @@
 <hr>
 
 <div id="reviewsContainer"></div>
+
+<!-- SECRET MODAL -->
+<div id="secretModal" class="modal">
+    <div class="modal-box">
+        <h3>Enter Secret Code</h3>
+        <input type="password" id="secretInput" placeholder="Secret Code">
+        <div class="modal-buttons">
+            <button class="confirm-btn" onclick="confirmSecret()">Confirm</button>
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
 
 <script src="review.js"></script>
 
