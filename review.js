@@ -9,90 +9,150 @@ const firebaseConfig = {
   appId: "1:104279243313:web:485df97877f6a1cb31b310"
 };
 
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const database = firebase.database();
+firebase.initializeApp(firebaseConfig);
 
-// ================= REVIEW SYSTEM =================
+const database = firebase.database();
+const auth = firebase.auth();
+
 const reviewForm = document.getElementById("reviewForm");
 const container = document.getElementById("reviewsContainer");
-const SECRET_CODE = "saphal-dev-admin"; // Change this to your secret code
+const userStatus = document.getElementById("userStatus");
 
-// 1. Listen for data
-database.ref("reviews").on("value", (snapshot) => {
-    container.innerHTML = ""; 
-    snapshot.forEach((childSnapshot) => {
-        const data = childSnapshot.val();
-        const id = childSnapshot.key;
-        renderReview(id, data);
-    });
+let currentUser = null;
+const ADMIN_EMAIL = "gamersaphal8@gmail.com"; // change this
+
+// ================= AUTH =================
+function register() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.createUserWithEmailAndPassword(email, password)
+        .catch(err => alert(err.message));
+}
+
+function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .catch(err => alert(err.message));
+}
+
+function logout() {
+    auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        userStatus.innerText = "Logged in as: " + user.email;
+    } else {
+        currentUser = null;
+        userStatus.innerText = "Not logged in";
+    }
 });
 
-// 2. UI Rendering
+// ================= LOAD REVIEWS =================
+database.ref("reviews")
+.orderByChild("timestamp")
+.on("value", snapshot => {
+    container.innerHTML = "";
+    const reviews = [];
+
+    snapshot.forEach(child => {
+        reviews.push({
+            id: child.key,
+            data: child.val()
+        });
+    });
+
+    reviews.reverse(); // newest first
+
+    reviews.forEach(item => renderReview(item.id, item.data));
+});
+
+// ================= RENDER =================
 function renderReview(id, data) {
     const card = document.createElement("div");
-    card.className = "card review-card";
+    card.className = "card";
+
+    const isOwner = currentUser && currentUser.uid === data.uid;
+    const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
 
     card.innerHTML = `
-        <div class="three-dots" onclick="toggleMenu('${id}', event)">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-        </div>
+        ${(isOwner || isAdmin) ? `
+        <div class="three-dots" onclick="toggleMenu('${id}', event)">⋮</div>
         <div id="menu-${id}" class="admin-menu">
-            <button onclick="promptEdit('${id}', '${data.message}')">Edit Review</button>
-            <button onclick="promptDelete('${id}')">Delete Review</button>
+            ${isOwner ? `<button onclick="editReview('${id}', \`${data.message}\`)">Edit</button>` : ""}
+            <button onclick="deleteReview('${id}')">Delete</button>
         </div>
+        ` : ""}
+
         <div class="rating-stars">${"★".repeat(data.rating)}</div>
-        <p style="margin-bottom: 15px; font-size: 15px; opacity: 0.9;">"${data.message}"</p>
-        <div style="font-size: 12px; opacity: 0.5;">
+        <p>"${data.message}"</p>
+        <div>
             <strong>${data.name}</strong> • ${data.date}
         </div>
     `;
-    container.prepend(card);
+
+    container.appendChild(card);
 }
 
-// 3. Post Review
-reviewForm?.addEventListener("submit", (e) => {
+// ================= POST =================
+reviewForm.addEventListener("submit", e => {
     e.preventDefault();
-    
+
+    if (!currentUser) {
+        alert("Please login first!");
+        return;
+    }
+
     const newReview = {
         name: document.getElementById("reviewName").value,
         rating: parseInt(document.getElementById("reviewRating").value),
         message: document.getElementById("reviewMessage").value,
-        date: new Date().toLocaleDateString()
+        date: new Date().toLocaleDateString(),
+        timestamp: Date.now(),
+        uid: currentUser.uid,
+        email: currentUser.email
     };
 
     database.ref("reviews").push(newReview)
         .then(() => reviewForm.reset())
-        .catch((error) => alert("Error: " + error.message));
+        .catch(err => alert(err.message));
 });
 
-// 4. Admin Functions
+// ================= EDIT (ONLY MESSAGE) =================
+window.editReview = function(id, currentMsg) {
+    const newMsg = prompt("Edit your review:", currentMsg);
+
+    if (newMsg && newMsg !== currentMsg) {
+        database.ref("reviews/" + id).update({
+            message: newMsg
+        });
+    }
+};
+
+// ================= DELETE =================
+window.deleteReview = function(id) {
+    if (!currentUser) return;
+
+    if (confirm("Are you sure?")) {
+        database.ref("reviews/" + id).remove();
+    }
+};
+
+// ================= MENU =================
 window.toggleMenu = function(id, event) {
     event.stopPropagation();
     const menu = document.getElementById(`menu-${id}`);
-    const allMenus = document.querySelectorAll('.admin-menu');
-    allMenus.forEach(m => { if(m !== menu) m.style.display = "none"; });
+    document.querySelectorAll('.admin-menu')
+        .forEach(m => m.style.display = "none");
+
     menu.style.display = menu.style.display === "block" ? "none" : "block";
 };
 
-window.promptDelete = function(id) {
-    const userInput = prompt("Enter Admin Secret Code to delete:");
-    if (userInput === SECRET_CODE) {
-        database.ref("reviews/" + id).remove();
-    } else if (userInput !== null) {
-        alert("Incorrect Code!");
-    }
+window.onclick = () => {
+    document.querySelectorAll('.admin-menu')
+        .forEach(m => m.style.display = "none");
 };
-
-window.promptEdit = function(id, currentMsg) {
-    // Basic owner edit - in this simple system, we use the same code or just allow it
-    const newMsg = prompt("Edit your review content:", currentMsg);
-    if (newMsg && newMsg !== currentMsg) {
-        database.ref("reviews/" + id).update({ message: newMsg });
-    }
-};
-
-// Close menu on click outside
-window.onclick = () => document.querySelectorAll('.admin-menu').forEach(m => m.style.display = "none");
