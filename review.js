@@ -146,3 +146,15 @@ window.onclick = (e) => {
     if (e.target === adminModal) closeModal();
     document.querySelectorAll('.admin-menu').forEach(m => m.style.display = "none");
 };
+
+function showError(message) {
+    const box = document.getElementById("errorBox");
+    const text = document.getElementById("errorText");
+
+    text.innerText = message;
+    box.style.display = "block";
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 3000);
+}
