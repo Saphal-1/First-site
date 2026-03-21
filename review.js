@@ -125,7 +125,7 @@ confirmBtn.onclick = function() {
         }
         closeModal();
     } else {
-        alert("Incorrect Admin Code!");
+        showError("Incorrect Admin Code!");
         secretInput.value = "";
     }
 };
