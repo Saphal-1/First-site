@@ -65,21 +65,20 @@ window.openAuthModal = () => document.getElementById('authModal').style.display 
 
 window.loginWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => alert(err.message));
+    // Bypasses popup blockers by redirecting the page
+    auth.signInWithRedirect(provider); 
 };
 
 window.loginWithDiscord = () => {
-    // Note: Discord requires OAuthProvider configured in Firebase Console.
     const provider = new firebase.auth.OAuthProvider('oidc.discord');
-    auth.signInWithPopup(provider).catch(err => {
-        // Fallback message if user hasn't configured Identity Platform yet
-        if(err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/invalid-credential') {
-            alert("Discord Auth is not fully configured in Firebase yet. Please continue with Google or Guest mode for now!");
-        } else {
-            console.error(err);
-        }
-    });
+    auth.signInWithRedirect(provider);
 };
+
+// Add this to catch any errors that happen during the redirect process
+auth.getRedirectResult().catch((error) => {
+    alert("Login Error: " + error.message);
+    console.error("Auth Error Details:", error);
+});
 
 window.continueAsGuest = () => {
     localStorage.setItem('authChoice', 'guest');
